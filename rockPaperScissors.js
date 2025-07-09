@@ -10,18 +10,25 @@ const rules = {
 
 const PICKS = ["rock", "paper", "scissors"];
 
+const scores = {
+    user: 0,
+    computer: 0
+};
+
+let gameOver = false;
+
 function getComputerChoice() {
     const randomNumber = Math.floor(Math.random() * PICKS.length);
 
     return PICKS[randomNumber];
 }
 
-function getHumanChoice() {
-    let userChoice = prompt("enter one of the options: rock, paper, scissors");
-    return userChoice;
-}
+// function getHumanChoice() {
+//     let userChoice = prompt("enter one of the options: rock, paper, scissors");
+//     return userChoice;
+// }
 
-function playRound(humanChoice, computerChoice) {
+function playRound(humanChoice, computerChoice, displayer) {
     humanChoice = humanChoice.toLowerCase();
     
     let message;
@@ -38,7 +45,7 @@ function playRound(humanChoice, computerChoice) {
         result = LOSE;
     }
 
-    console.log(message);
+    displayer.textContent = message;
     return result;
 }
 
@@ -46,23 +53,23 @@ function capitalFirstLetter (word) {
     return word[0].toUpperCase() + word.slice(1);
 }
 
-function playGame() {
-    const scores = {
-        user : 0,
-        computer: 0,
-    };
+// function playGame() {
+//     const scores = {
+//         user : 0,
+//         computer: 0,
+//     };
 
-    for (let i = 0; i < 5; i++) {
-        let computerSelection = getComputerChoice();
-        let humanSelection = getHumanChoice();
+//     for (let i = 0; i < 5; i++) {
+//         let computerSelection = getComputerChoice();
+//         let humanSelection = getHumanChoice();
         
-        let result = playRound(humanSelection, computerSelection);
+//         let result = playRound(humanSelection, computerSelection);
 
-        updateScores(result, scores);
-    }
+//         updateScores(result, scores);
+//     }
 
-    displayFinalResults(scores);
-}
+//     displayFinalResults(scores);
+// }
 
 function updateScores(result, scores) {
     if (result === WIN) {
@@ -72,16 +79,37 @@ function updateScores(result, scores) {
     }
 }
 
-function displayFinalResults(scores) {
-    console.log(`User Wins: ${scores.user}\nComputer Wins: ${scores.computer}`);
-
+function displayFinalResults(scores, displayer) {
+    let results = `User Wins: ${scores.user}\nComputer Wins: ${scores.computer}\n`;
     if (scores.user > scores.computer) {
-        console.log("You Won!");
+        results += "You Won!";
     } else if (scores.user < scores.computer) {
-        console.log("You Lost!");
+        results += "You Lost!";
     } else {
-        console.log("It's a Tie!");
+        results += "It's a Tie!";
+    }
+
+    displayer.textContent = results;
+}
+
+function handleChoiceClick(e) {
+    if (gameOver) return;
+
+    const humanChoice = e.target.id;
+    const computerChoice = getComputerChoice();
+    const result = playRound(humanChoice, computerChoice, resultsDisplayer);
+
+    updateScores(result, scores);
+
+    if (scores.user === 5 || scores.computer === 5) {
+        gameOver = true;
+        displayFinalResults(scores, resultsDisplayer);
     }
 }
 
-playGame();
+const buttons = document.querySelectorAll("button");
+buttons.forEach(button => {
+    button.addEventListener('click', handleChoiceClick);
+});
+
+const resultsDisplayer = document.querySelector("#results");
